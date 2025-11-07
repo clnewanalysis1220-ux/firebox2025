@@ -15,8 +15,9 @@ PASSWORD = "pw@1452"
 def main():
     options = Options()
     options.headless = True  # ヘッドレスモード
+    options.binary = '/usr/bin/firefox'  # GitHub Actionsのfirefoxパスを明示指定
 
-    service = Service()  # パス指定なし
+    service = Service()  # ここはパス指定なしでOK
     driver = webdriver.Firefox(service=service, options=options)
     wait = WebDriverWait(driver, 20)  # 最大20秒待機するWebDriverWaitを作成
 
