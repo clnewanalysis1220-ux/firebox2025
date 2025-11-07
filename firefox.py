@@ -15,11 +15,11 @@ PASSWORD = "pw@1452"
 def main():
     options = Options()
     options.headless = True  # ヘッドレスモード
-    options.binary = '/usr/bin/firefox'  # GitHub Actionsのfirefoxパスを明示指定
+    options.binary_location = '/usr/bin/firefox'  # GitHub Actionsのfirefoxパスを明示指定
 
-    service = Service()  # ここはパス指定なしでOK
+    service = Service()  # パス指定なし
     driver = webdriver.Firefox(service=service, options=options)
-    wait = WebDriverWait(driver, 20)  # 最大20秒待機するWebDriverWaitを作成
+    wait = WebDriverWait(driver, 20)
 
     try:
         print("ページにアクセス中...")
@@ -53,7 +53,7 @@ def main():
             recalc_button.click()
 
             print("再計算ボタンをクリックしました。完了を待機しています...")
-            time.sleep(10)  # 処理待機時間（必要に応じて調整）
+            time.sleep(10)  # 待機
 
             print("再計算処理完了か要確認してください。次は1時間後に実行します。")
             time.sleep(3600)  # 1時間待機
