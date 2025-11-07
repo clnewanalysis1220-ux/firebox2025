@@ -1,5 +1,6 @@
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
@@ -15,7 +16,8 @@ def main():
     options = Options()
     options.headless = True  # ヘッドレスモード
 
-    driver = webdriver.Firefox(options=options)
+    service = Service()  # パス指定なし
+    driver = webdriver.Firefox(service=service, options=options)
     wait = WebDriverWait(driver, 20)  # 最大20秒待機するWebDriverWaitを作成
 
     try:
