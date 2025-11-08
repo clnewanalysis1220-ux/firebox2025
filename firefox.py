@@ -8,9 +8,11 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 
 # ログイン情報
+import os
+
 URL = "https://clean-lease-gw.net/scripts/dneo/appsuite.exe?cmd=cdbasetappmanage&app_id=287#cmd=cdbasetrecalc"
-USER_ID = "y-warizaya@clean-lease.co.jp"
-PASSWORD = "pw@1452"
+USER_ID = os.environ.get("GROUPWARE_USER")
+PASSWORD = os.environ.get("GROUPWARE_PASS")
 
 def main():
     options = Options()
