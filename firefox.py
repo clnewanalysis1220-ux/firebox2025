@@ -14,12 +14,12 @@ PASSWORD = "pw@1452"
 
 def main():
     options = Options()
-    options.headless = True  # ヘッドレスモード
-    options.binary_location = '/usr/bin/firefox'  # GitHub Actionsのfirefoxパスを明示指定
+    options.headless = True
+    options.binary = '/usr/bin/firefox'
 
-    service = Service()  # パス指定なし
+    service = Service('/usr/local/bin/geckodriver')
     driver = webdriver.Firefox(service=service, options=options)
-    wait = WebDriverWait(driver, 20)
+    wait = WebDriverWait(driver, 20)  # 追加
 
     try:
         print("ページにアクセス中...")
@@ -30,33 +30,29 @@ def main():
         driver.find_element(By.NAME, "UserID").send_keys(USER_ID)
         driver.find_element(By.NAME, "_word").send_keys(PASSWORD)
         driver.find_element(By.NAME, "_word").send_keys(Keys.ENTER)
-        time.sleep(5)
+        time.sleep(6)
         print("ログイン完了")
 
-        while True:
-            print("チェックボックスをチェック中...")
-            checkbox = wait.until(
-                EC.element_to_be_clickable(
-                    (By.CSS_SELECTOR, 'div.cdb-recalculate-check > label > input[type="checkbox"]')
-                )
+        print("チェックボックスをチェック中...")
+        checkbox = wait.until(
+            EC.element_to_be_clickable(
+                (By.CSS_SELECTOR, 'div.cdb-recalculate-check > label > input[type="checkbox"]')
             )
-            if not checkbox.is_selected():
-                checkbox.click()
-                print("チェックボックスにチェックを入れました")
-            else:
-                print("チェックボックスはすでにチェック済みです")
+        )
+        if not checkbox.is_selected():
+            checkbox.click()
+            print("チェックボックスにチェックを入れました")
+        else:
+            print("チェックボックスはすでにチェック済みです")
 
-            print("再計算ボタンをクリックします...")
-            recalc_button = wait.until(
-                EC.element_to_be_clickable((By.CLASS_NAME, "cdb-recalculate-button"))
-            )
-            recalc_button.click()
+        print("再計算ボタンをクリックします...")
+        recalc_button = wait.until(
+            EC.element_to_be_clickable((By.CLASS_NAME, "cdb-recalculate-button"))
+        )
+        recalc_button.click()
 
-            print("再計算ボタンをクリックしました。完了を待機しています...")
-            time.sleep(10)  # 待機
-
-            print("再計算処理完了か要確認してください。次は1時間後に実行します。")
-            time.sleep(3600)  # 1時間待機
+        print("再計算ボタンをクリックしました。完了を待機しています…")
+        time.sleep(10)  # 必要待機
 
     except Exception as e:
         print("エラーが発生しました:", e)
@@ -64,6 +60,3 @@ def main():
     finally:
         driver.quit()
         print("ブラウザを閉じました。")
-
-if __name__ == "__main__":
-    main()
