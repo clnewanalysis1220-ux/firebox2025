@@ -1,14 +1,12 @@
-name: Run firefox.py periodically
-
 on:
   schedule:
-    - cron: '0 * * * *'
+    - cron: '*/3 * * * *'
   workflow_dispatch:
 
 jobs:
   run-firefox:
     runs-on: ubuntu-latest
-    env:   # ←ここを追加
+    env:
       GROUPWARE_USER: ${{ secrets.GROUPWARE_USER }}
       GROUPWARE_PASS: ${{ secrets.GROUPWARE_PASS }}
 
