@@ -10,7 +10,6 @@ import time
 import os
 import sys
 
-# ログインURLと環境変数からユーザ情報取得
 URL = "https://clean-lease-gw.net/scripts/dneo/appsuite.exe?cmd=cdbasetappmanage&app_id=287#cmd=cdbasetrecalc"
 USER_ID = os.environ.get("GROUPWARE_USER")
 PASSWORD = os.environ.get("GROUPWARE_PASS")
@@ -25,16 +24,15 @@ def main():
     service = Service('/usr/local/bin/geckodriver', timeout=180)
 
     driver = None
-    max_retries = 3
-    for attempt in range(max_retries):
+    for attempt in range(3):
         try:
             driver = webdriver.Firefox(service=service, options=options)
             break
         except WebDriverException as e:
-            print(f"WebDriver 起動失敗 {attempt+1}/{max_retries} 回: {e}")
+            print(f"WebDriver起動失敗 {attempt + 1}/3回: {e}")
             time.sleep(15)
     else:
-        print("WebDriver 起動に3回失敗しました。処理を終了します。")
+        print("WebDriver起動に3回失敗しました。終了します。")
         sys.exit(1)
 
     wait = WebDriverWait(driver, 60)
@@ -69,8 +67,7 @@ def main():
         )
         recalc_button.click()
 
-        print("再計算ボタンをクリックしました。完了を待機しています…")
-
+        print("完了メッセージを待っています…")
         done_message = wait.until(
             EC.presence_of_element_located((By.CSS_SELECTOR, "div.neo-message"))
         )
