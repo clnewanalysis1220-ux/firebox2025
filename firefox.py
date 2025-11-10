@@ -19,8 +19,9 @@ def main():
     options.headless = True
     options.binary_location = '/usr/bin/firefox'
 
-    service = Service('/usr/local/bin/geckodriver')
-    driver = webdriver.Firefox(service=service, options=options, timeout=180)
+    # 起動タイムアウトを180秒に設定
+    service = Service('/usr/local/bin/geckodriver', timeout=180)
+    driver = webdriver.Firefox(service=service, options=options)
     wait = WebDriverWait(driver, 60)
 
     try:
