@@ -15,9 +15,9 @@ USER_ID = os.environ.get("GROUPWARE_USER")
 PASSWORD = os.environ.get("GROUPWARE_PASS")
 
 def main():
-    options = Options()
-    options.headless = True
-    options.binary = '/usr/bin/firefox'
+options = Options()
+options.headless = True
+options.binary_location = '/usr/bin/firefox'  # 修正ここ
 
     service = Service('/usr/local/bin/geckodriver')
     driver = webdriver.Firefox(service=service, options=options)
