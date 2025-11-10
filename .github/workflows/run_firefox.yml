@@ -16,8 +16,9 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y firefox libgtk-3-0 libdbus-glib-1-2 libx11-xcb1 libxt6 libxcomposite1 \
-          libxcursor1 libxdamage1 libxrandr2 libpangocairo-1.0-0 libnss3 libxss1 libxext6 xvfb
+          sudo apt-get install -y firefox libgtk-3-0 libdbus-glib-1-2 libx11-xcb1 libxt6 \
+          libxcomposite1 libxcursor1 libxdamage1 libxrandr2 libpangocairo-1.0-0 libnss3 \
+          libxss1 libxext6 xvfb
 
       - name: Install GeckoDriver
         run: |
@@ -34,5 +35,8 @@ jobs:
       - name: Install Selenium
         run: pip install selenium
 
-      - name: Run python script with Xvfb
+      - name: Check Firefox version on runner
+        run: firefox --version
+
+      - name: Run Python script with Xvfb
         run: xvfb-run -a python firefox.py
