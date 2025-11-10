@@ -5,11 +5,11 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import WebDriverException
 import time
 import os
 import sys
 
-# ログインURLと環境変数からID/PASS取得
 URL = "https://clean-lease-gw.net/scripts/dneo/appsuite.exe?cmd=cdbasetappmanage&app_id=287#cmd=cdbasetrecalc"
 USER_ID = os.environ.get("GROUPWARE_USER")
 PASSWORD = os.environ.get("GROUPWARE_PASS")
@@ -22,7 +22,19 @@ def main():
     options.add_argument('--disable-dev-shm-usage')
 
     service = Service('/usr/local/bin/geckodriver', timeout=180)
-    driver = webdriver.Firefox(service=service, options=options)
+
+    # WebDriver起動を3回までリトライ
+    for attempt in range(3):
+        try:
+            driver = webdriver.Firefox(service=service, options=options)
+            break
+        except WebDriverException as e:
+            print(f"WebDriver起動失敗 {attempt+1}回目: {e}")
+            time.sleep(15)
+    else:
+        print("WebDriver起動に3回失敗しました。終了します。")
+        sys.exit(1)
+
     wait = WebDriverWait(driver, 60)
 
     try:
