@@ -1,42 +1,48 @@
+name: Run Firefox automation
+
 on:
-  schedule:
-    - cron: '3 * * * *'
-  workflow_dispatch:
+  workflow_dispatch:  # 手動実行
 
 jobs:
-  run-firefox:
+  run:
     runs-on: ubuntu-latest
-    env:
-      GROUPWARE_USER: ${{ secrets.GROUPWARE_USER }}
-      GROUPWARE_PASS: ${{ secrets.GROUPWARE_PASS }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - name: Install dependencies
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Firefox and geckodriver
         run: |
           sudo apt-get update
-          sudo apt-get install -y firefox libgtk-3-0 libdbus-glib-1-2 libx11-xcb1 libxt6 \
-          libxcomposite1 libxcursor1 libxdamage1 libxrandr2 libpangocairo-1.0-0 libnss3 \
-          libxss1 libxext6 xvfb
-
-      - name: Install GeckoDriver
-        run: |
-          wget https://github.com/mozilla/geckodriver/releases/download/v0.33.0/geckodriver-v0.33.0-linux64.tar.gz
-          tar -xvzf geckodriver-v0.33.0-linux64.tar.gz
+          sudo apt-get install -y firefox-esr xvfb wget tar jq
+          GECKO_VERSION=$(curl -s https://api.github.com/repos/mozilla/geckodriver/releases/latest | jq -r '.tag_name')
+          wget -q https://github.com/mozilla/geckodriver/releases/download/${GECKO_VERSION}/geckodriver-${GECKO_VERSION}-linux64.tar.gz
+          tar -xzf geckodriver-${GECKO_VERSION}-linux64.tar.gz
           sudo mv geckodriver /usr/local/bin/
-          chmod +x /usr/local/bin/geckodriver
+          sudo chmod +x /usr/local/bin/geckodriver
+          echo "✅ Firefox and geckodriver installed"
+          firefox --version
+          geckodriver --version
 
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.x"
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install selenium
 
-      - name: Install Selenium
-        run: pip install selenium
+      - name: Run automation script
+        env:
+          GROUPWARE_USER: ${{ secrets.GROUPWARE_USER }}
+          GROUPWARE_PASS: ${{ secrets.GROUPWARE_PASS }}
+        run: |
+          echo "🚀 xvfb + Firefox headless 実行開始"
+          xvfb-run -a -s "-screen 0 1920x1080x24" python firefox.py
 
-      - name: Check Firefox version on runner
-        run: firefox --version
-
-      - name: Run Python script with Xvfb
-        run: xvfb-run -a python firefox.py
+      - name: Show geckodriver log (on failure)
+        if: failure()
+        run: |
+          echo "=== /tmp/geckodriver.log (tail 100 lines) ==="
+          tail -n 100 /tmp/geckodriver.log || echo "ログが存在しません。"
