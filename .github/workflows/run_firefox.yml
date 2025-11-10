@@ -1,59 +1,44 @@
-name: Run Firefox automation
+name: Run Firefox Selenium Test
 
 on:
   schedule:
-    - cron: '3 * * * *'  # 毎時3分に自動実行（UTC基準）
-  workflow_dispatch:       # 手動実行も可能
+    - cron: '3 * * * *'
+  workflow_dispatch:
 
 jobs:
-  run:
+  run-firefox:
     runs-on: ubuntu-latest
+    env:
+      GROUPWARE_USER: ${{ secrets.GROUPWARE_USER }}
+      GROUPWARE_PASS: ${{ secrets.GROUPWARE_PASS }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Install Firefox and geckodriver (manual install)
+      - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y wget tar xvfb jq libgtk-3-0 libdbus-glib-1-2 curl
+          sudo apt-get install -y firefox libgtk-3-0 libdbus-glib-1-2 libx11-xcb1 libxt6 \
+          libxcomposite1 libxcursor1 libxdamage1 libxrandr2 libpangocairo-1.0-0 libnss3 \
+          libxss1 libxext6 xvfb
 
-          echo "🦊 Downloading latest Firefox ESR..."
-          FIREFOX_URL="https://download.mozilla.org/?product=firefox-esr-latest&os=linux64&lang=ja"
-          wget -O /tmp/firefox.tar.bz2 "$FIREFOX_URL"
-          sudo tar -xjf /tmp/firefox.tar.bz2 -C /opt/
-          sudo ln -sf /opt/firefox/firefox /usr/bin/firefox
-
-          echo "🦊 Installing latest geckodriver..."
-          GECKO_VERSION=$(curl -s https://api.github.com/repos/mozilla/geckodriver/releases/latest | jq -r '.tag_name')
-          wget -q https://github.com/mozilla/geckodriver/releases/download/${GECKO_VERSION}/geckodriver-${GECKO_VERSION}-linux64.tar.gz
-          tar -xzf geckodriver-${GECKO_VERSION}-linux64.tar.gz
+      - name: Install GeckoDriver
+        run: |
+          wget https://github.com/mozilla/geckodriver/releases/download/v0.33.0/geckodriver-v0.33.0-linux64.tar.gz
+          tar -xvzf geckodriver-v0.33.0-linux64.tar.gz
           sudo mv geckodriver /usr/local/bin/
-          sudo chmod +x /usr/local/bin/geckodriver
+          chmod +x /usr/local/bin/geckodriver
 
-          echo "✅ Installed versions:"
-          firefox --version
-          geckodriver --version
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
 
-      - name: Install Python dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install selenium
+      - name: Install Selenium
+        run: pip install selenium
 
-      - name: Run automation script (headless with xvfb)
-        env:
-          GROUPWARE_USER: ${{ secrets.GROUPWARE_USER }}
-          GROUPWARE_PASS: ${{ secrets.GROUPWARE_PASS }}
-        run: |
-          echo "🚀 Starting xvfb + Firefox headless session"
-          xvfb-run -a -s "-screen 0 1920x1080x24" python firefox.py
+      - name: Check Firefox version on runner
+        run: firefox --version
 
-      - name: Show geckodriver log (on failure)
-        if: failure()
-        run: |
-          echo "=== /tmp/geckodriver.log (tail 100 lines) ==="
-          tail -n 100 /tmp/geckodriver.log || echo "ログが存在しません。"
+      - name: Run Python script with Xvfb
+        run: xvfb-run -a python firefox.py
