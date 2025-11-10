@@ -14,36 +14,19 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y firefox libgtk-3-0 libdbus-glib-1-2 libx11-xcb1 libxt6 \
-          libxcomposite1 libxcursor1 libxdamage1 libxrandr2 libpangocairo-1.0-0 libnss3 \
-          libxss1 libxext6 xvfb
-
+      - name: Install Firefox
+        run: sudo apt-get update && sudo apt-get install -y firefox
       - name: Install GeckoDriver
         run: |
           wget https://github.com/mozilla/geckodriver/releases/download/v0.33.0/geckodriver-v0.33.0-linux64.tar.gz
           tar -xvzf geckodriver-v0.33.0-linux64.tar.gz
           sudo mv geckodriver /usr/local/bin/
           chmod +x /usr/local/bin/geckodriver
-
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.x"
-
       - name: Install Selenium
         run: pip install selenium
-
-      - name: System info
-        run: |
-          firefox --version
-          geckodriver --version
-          free -h
-          df -h
-          ps aux
-
-      - name: Run Python script with Xvfb
-        run: xvfb-run -a python firefox.py
+      - name: Run script
+        run: python firefox.py
