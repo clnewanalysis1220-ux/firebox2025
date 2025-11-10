@@ -6,10 +6,10 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
+import os
+import sys
 
 # ログイン情報
-import os
-
 URL = "https://clean-lease-gw.net/scripts/dneo/appsuite.exe?cmd=cdbasetappmanage&app_id=287#cmd=cdbasetrecalc"
 USER_ID = os.environ.get("GROUPWARE_USER")
 PASSWORD = os.environ.get("GROUPWARE_PASS")
@@ -21,7 +21,7 @@ def main():
 
     service = Service('/usr/local/bin/geckodriver')
     driver = webdriver.Firefox(service=service, options=options)
-    wait = WebDriverWait(driver, 20)  # 追加
+    wait = WebDriverWait(driver, 20)
 
     try:
         print("ページにアクセス中...")
@@ -54,11 +54,33 @@ def main():
         recalc_button.click()
 
         print("再計算ボタンをクリックしました。完了を待機しています…")
-        time.sleep(10)  # 必要待機
+
+        # 完了メッセージの表示を待つ
+        done_message = wait.until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, "div.neo-message"))
+        )
+        print("完了メッセージ:", done_message.text)
+
+        # 処理済みデータ件数の表示も待つ
+        job_detail = wait.until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, "div.cdb-job-detail"))
+        )
+        print("処理済みデータ件数:", job_detail.text)
+
+        # 「閉じる」ボタンを待機してクリック
+        close_button = wait.until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, "div.ui-dialog-buttonpane button.ui-button"))
+        )
+        close_button.click()
+        print("閉じるボタンをクリックしました")
+
+        driver.quit()
+        sys.exit(0)  # 正常終了
 
     except Exception as e:
         print("エラーが発生しました:", e)
-
-    finally:
         driver.quit()
-        print("ブラウザを閉じました。")
+        sys.exit(1)  # 異常終了
+
+if __name__ == "__main__":
+    main()
