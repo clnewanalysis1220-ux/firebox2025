@@ -9,7 +9,7 @@ import time
 import os
 import sys
 
-# ログイン情報
+# ログインURLと環境変数からID/PASS取得
 URL = "https://clean-lease-gw.net/scripts/dneo/appsuite.exe?cmd=cdbasetappmanage&app_id=287#cmd=cdbasetrecalc"
 USER_ID = os.environ.get("GROUPWARE_USER")
 PASSWORD = os.environ.get("GROUPWARE_PASS")
@@ -18,8 +18,9 @@ def main():
     options = Options()
     options.headless = True
     options.binary_location = '/usr/bin/firefox'
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-dev-shm-usage')
 
-    # 起動タイムアウトを180秒に設定
     service = Service('/usr/local/bin/geckodriver', timeout=180)
     driver = webdriver.Firefox(service=service, options=options)
     wait = WebDriverWait(driver, 60)
