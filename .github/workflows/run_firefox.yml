@@ -7,7 +7,7 @@ on:
 
 jobs:
   run-firefox:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     env:
       GROUPWARE_USER: ${{ secrets.GROUPWARE_USER }}
       GROUPWARE_PASS: ${{ secrets.GROUPWARE_PASS }}
@@ -37,8 +37,13 @@ jobs:
       - name: Install Selenium
         run: pip install selenium
 
-      - name: Check Firefox version on runner
-        run: firefox --version
+      - name: System info
+        run: |
+          firefox --version
+          geckodriver --version
+          free -h
+          df -h
+          ps aux
 
       - name: Run Python script with Xvfb
         run: xvfb-run -a python firefox.py
