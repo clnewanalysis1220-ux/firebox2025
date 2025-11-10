@@ -17,11 +17,11 @@ PASSWORD = os.environ.get("GROUPWARE_PASS")
 def main():
     options = Options()
     options.headless = True
-    options.binary_location = '/usr/bin/firefox'  # 修正ここ
+    options.binary_location = '/usr/bin/firefox'
 
     service = Service('/usr/local/bin/geckodriver')
-    driver = webdriver.Firefox(service=service, options=options)
-    wait = WebDriverWait(driver, 20)
+    driver = webdriver.Firefox(service=service, options=options, timeout=180)
+    wait = WebDriverWait(driver, 60)
 
     try:
         print("ページにアクセス中...")
@@ -55,19 +55,16 @@ def main():
 
         print("再計算ボタンをクリックしました。完了を待機しています…")
 
-        # 完了メッセージの表示を待つ
         done_message = wait.until(
             EC.presence_of_element_located((By.CSS_SELECTOR, "div.neo-message"))
         )
         print("完了メッセージ:", done_message.text)
 
-        # 処理済みデータ件数の表示も待つ
         job_detail = wait.until(
             EC.presence_of_element_located((By.CSS_SELECTOR, "div.cdb-job-detail"))
         )
         print("処理済みデータ件数:", job_detail.text)
 
-        # 「閉じる」ボタンを待機してクリック
         close_button = wait.until(
             EC.element_to_be_clickable((By.CSS_SELECTOR, "div.ui-dialog-buttonpane button.ui-button"))
         )
@@ -75,12 +72,12 @@ def main():
         print("閉じるボタンをクリックしました")
 
         driver.quit()
-        sys.exit(0)  # 正常終了
+        sys.exit(0)
 
     except Exception as e:
         print("エラーが発生しました:", e)
         driver.quit()
-        sys.exit(1)  # 異常終了
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
