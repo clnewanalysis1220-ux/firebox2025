@@ -21,21 +21,22 @@ def main():
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
 
-    service = Service('/usr/local/bin/geckodriver', timeout=180)
+    service = Service('/usr/local/bin/geckodriver', timeout=300)  # タイムアウトをさらに延長
 
     driver = None
     for attempt in range(3):
         try:
+            print(f"WebDriver起動トライ {attempt+1}/3")
             driver = webdriver.Firefox(service=service, options=options)
             break
         except WebDriverException as e:
-            print(f"WebDriver起動失敗 {attempt + 1}/3回: {e}")
-            time.sleep(15)
+            print(f"WebDriver起動失敗 {attempt + 1}回: {e}")
+            time.sleep(20)
     else:
         print("WebDriver起動に3回失敗しました。終了します。")
         sys.exit(1)
 
-    wait = WebDriverWait(driver, 60)
+    wait = WebDriverWait(driver, 90)
 
     try:
         print("ページにアクセス中...")
@@ -46,7 +47,7 @@ def main():
         driver.find_element(By.NAME, "UserID").send_keys(USER_ID)
         driver.find_element(By.NAME, "_word").send_keys(PASSWORD)
         driver.find_element(By.NAME, "_word").send_keys(Keys.ENTER)
-        time.sleep(6)
+        time.sleep(8)
         print("ログイン完了")
 
         print("チェックボックスをチェック中...")
